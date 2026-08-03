@@ -1,0 +1,35 @@
+# PHP dependencies
+/vendor/
+
+# Composer
+composer.lock
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# Cache
+/cache/
+/tmp/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.old
+
+# Database exports
+*.sql.zip
