@@ -1,7 +1,7 @@
 <?php
 /**
  * PHP Modernizer
- * PHP 8.2 Compatibility Scanner v0.1
+ * PHP 8.2 Compatibility Scanner v0.2
  *
  * Author: Masoud F.
  *
@@ -66,7 +66,7 @@ $rules = [
 
 echo "\n";
 echo "=====================================\n";
-echo " PHP Modernizer Scanner v0.1\n";
+echo " PHP Modernizer Scanner v0.2\n";
 echo " PHP 8.2 Compatibility Report\n";
 echo "=====================================\n\n";
 
@@ -89,11 +89,16 @@ foreach ($files as $file) {
 
     $content = file_get_contents($file);
 
-    foreach ($rules as $function => $info) {
+$lines = explode("\n", $content);
 
-        if (stripos($content, $function . '(') !== false) {
+foreach ($rules as $function => $info) {
+
+    foreach ($lines as $lineNumber => $line) {
+
+        if (stripos($line, $function . '(') !== false) {
 
             echo "File: " . $file . "\n";
+            echo "Line: " . ($lineNumber + 1) . "\n";
             echo "Found: " . $function . "()\n";
             echo "Status: " . $info['status'] . "\n";
             echo "Suggestion: " . $info['suggestion'] . "\n";
@@ -101,6 +106,6 @@ foreach ($files as $file) {
         }
     }
 }
-
+}
 
 echo "\nScan completed.\n";
