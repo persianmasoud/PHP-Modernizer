@@ -4,42 +4,23 @@ declare(strict_types=1);
 
 namespace PHPModernizer\Core;
 
-/**
- * PHP Modernizer Application Kernel
- *
- * Main entry point of the application.
- * Responsible for initializing and coordinating all modules.
- */
+use PHPModernizer\Command\ScanCommand;
+
 final class Application
 {
-    /**
-     * Application version.
-     */
     public const VERSION = '0.1.0-dev';
 
-
-    /**
-     * Service container.
-     */
     private Container $container;
 
 
-    /**
-     * Create application instance.
-     */
     public function __construct()
     {
         $this->container = new Container();
     }
 
 
-    /**
-     * Boot the application.
-     */
     public function boot(): void
     {
-        // Register core services
-
         $this->container->set(
             'version',
             new Version()
@@ -47,20 +28,34 @@ final class Application
     }
 
 
-    /**
-     * Run application.
-     */
     public function run(): void
     {
         $this->boot();
 
-        // Execute selected workflow
+        global $argv;
+
+
+        $command = $argv[1] ?? null;
+
+
+        if ($command === 'scan') {
+
+            $scanCommand = new ScanCommand();
+
+            $exitCode = $scanCommand->execute(
+                array_slice($argv, 2)
+            );
+
+            exit($exitCode);
+        }
+
+
+        echo "PHP Modernizer CLI\n";
+        echo "Available commands:\n";
+        echo "  scan <project_path>\n";
     }
 
 
-    /**
-     * Get service container.
-     */
     public function getContainer(): Container
     {
         return $this->container;
