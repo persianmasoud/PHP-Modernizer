@@ -17,21 +17,35 @@ final class Application
      */
     public const VERSION = '0.1.0-dev';
 
+
+    /**
+     * Service container.
+     */
+    private Container $container;
+
+
+    /**
+     * Create application instance.
+     */
+    public function __construct()
+    {
+        $this->container = new Container();
+    }
+
+
     /**
      * Boot the application.
      */
     public function boot(): void
     {
-        // Load configuration
+        // Register core services
 
-        // Detect environment
-
-        // Initialize logger
-
-        // Register services
-
-        // Ready to run
+        $this->container->set(
+            'version',
+            new Version()
+        );
     }
+
 
     /**
      * Run application.
@@ -41,5 +55,14 @@ final class Application
         $this->boot();
 
         // Execute selected workflow
+    }
+
+
+    /**
+     * Get service container.
+     */
+    public function getContainer(): Container
+    {
+        return $this->container;
     }
 }
