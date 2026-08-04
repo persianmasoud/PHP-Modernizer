@@ -7,82 +7,122 @@ namespace PHPModernizer\Core;
 /**
  * Logger
  *
- * Simple logging system for PHP Modernizer.
- *
- * Records application events and messages.
+ * Records application events.
  */
 final class Logger
 {
     /**
-     * Log entries.
+     * @var LogEntry[]
      */
     private array $logs = [];
 
-    /**
-     * Add log entry.
-     */
-    public function log(
+    public function debug(
         string $message,
-        string $level = 'INFO'
+        ?string $file = null,
+        ?int $line = null,
+        array $context = []
     ): void {
-        $this->logs[] = [
-            'timestamp' => date('Y-m-d H:i:s'),
-            'level' => strtoupper($level),
-            'message' => $message,
-        ];
+        $this->add(
+            LogLevel::DEBUG,
+            $message,
+            $file,
+            $line,
+            $context
+        );
+    }
+
+    public function info(
+        string $message,
+        ?string $file = null,
+        ?int $line = null,
+        array $context = []
+    ): void {
+        $this->add(
+            LogLevel::INFO,
+            $message,
+            $file,
+            $line,
+            $context
+        );
+    }
+
+    public function warning(
+        string $message,
+        ?string $file = null,
+        ?int $line = null,
+        array $context = []
+    ): void {
+        $this->add(
+            LogLevel::WARNING,
+            $message,
+            $file,
+            $line,
+            $context
+        );
+    }
+
+    public function error(
+        string $message,
+        ?string $file = null,
+        ?int $line = null,
+        array $context = []
+    ): void {
+        $this->add(
+            LogLevel::ERROR,
+            $message,
+            $file,
+            $line,
+            $context
+        );
+    }
+
+    public function critical(
+        string $message,
+        ?string $file = null,
+        ?int $line = null,
+        array $context = []
+    ): void {
+        $this->add(
+            LogLevel::CRITICAL,
+            $message,
+            $file,
+            $line,
+            $context
+        );
+    }
+
+    private function add(
+        LogLevel $level,
+        string $message,
+        ?string $file,
+        ?int $line,
+        array $context
+    ): void {
+
+        $this->logs[] = new LogEntry(
+            timestamp: date('Y-m-d H:i:s'),
+            level: $level,
+            message: $message,
+            file: $file,
+            line: $line,
+            context: $context
+        );
+
     }
 
     /**
-     * Add information message.
-     */
-    public function info(string $message): void
-    {
-        $this->log($message, 'INFO');
-    }
-
-    /**
-     * Add warning message.
-     */
-    public function warning(string $message): void
-    {
-        $this->log($message, 'WARNING');
-    }
-
-    /**
-     * Add error message.
-     */
-    public function error(string $message): void
-    {
-        $this->log($message, 'ERROR');
-    }
-
-    /**
-     * Add debug message.
-     */
-    public function debug(string $message): void
-    {
-        $this->log($message, 'DEBUG');
-    }
-
-    /**
-     * Get all logs.
+     * @return LogEntry[]
      */
     public function all(): array
     {
         return $this->logs;
     }
 
-    /**
-     * Get logs count.
-     */
     public function count(): int
     {
         return count($this->logs);
     }
 
-    /**
-     * Clear all logs.
-     */
     public function clear(): void
     {
         $this->logs = [];
