@@ -1,0 +1,20 @@
+{
+    "name": "phpmodernizer/php-modernizer",
+    "description": "A tool to analyze and modernize legacy PHP projects for PHP 8.2+",
+    "type": "project",
+    "license": "MIT",
+
+    "autoload": {
+        "psr-4": {
+            "PHPModernizer\\": "Src/"
+        }
+    },
+
+    "require": {
+        "php": ">=8.2"
+    },
+
+    "require-dev": {
+        "phpunit/phpunit": "^11"
+    }
+}
