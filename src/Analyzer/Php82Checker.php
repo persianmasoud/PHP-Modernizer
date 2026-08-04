@@ -1,111 +1,122 @@
 <?php
-/**
- * PHP Modernizer
- * PHP 8.2 Compatibility Scanner v0.2
- *
- * Author: Masoud F.
- *
- * This tool scans legacy PHP files and detects
- * deprecated/removed PHP functions.
- */
 
-if ($argc < 2) {
-    echo "Usage: php php82_checker.php <project_path>\n";
-    exit(1);
-}
+declare(strict_types=1);
 
-$projectPath = $argv[1];
+namespace PHPModernizer\Analyzer;
 
-if (!is_dir($projectPath)) {
-    echo "Error: Directory not found: $projectPath\n";
-    exit(1);
-}
+use PHPModernizer\Issue\Issue;
+use PHPModernizer\Issue\Severity;
 
+final class Php82Checker implements AnalyzerInterface
+{
+    /**
+     * PHP compatibility rules.
+     */
+    private array $rules = [
 
-/*
- * Functions removed or deprecated in PHP 8.x
- */
-$rules = [
+        'mysql_connect' => [
+            'rule' => 'PHP.REMOVED.MYSQL_CONNECT',
+            'severity' => Severity::ERROR,
+            'message' => 'mysql_connect() was removed in PHP 7.0',
+            'suggestion' => 'Use PDO or mysqli'
+        ],
 
-    'mysql_connect' => [
-        'status' => 'Removed PHP 7',
-        'suggestion' => 'Use mysqli or PDO'
-    ],
+        'mysql_query' => [
+            'rule' => 'PHP.REMOVED.MYSQL_QUERY',
+            'severity' => Severity::ERROR,
+            'message' => 'mysql_query() was removed in PHP 7.0',
+            'suggestion' => 'Use mysqli_query or PDO'
+        ],
 
-    'mysql_query' => [
-        'status' => 'Removed PHP 7',
-        'suggestion' => 'Use mysqli_query or PDO'
-    ],
+        'ereg' => [
+            'rule' => 'PHP.REMOVED.EREG',
+            'severity' => Severity::ERROR,
+            'message' => 'ereg() was removed in PHP 7.0',
+            'suggestion' => 'Use preg_match'
+        ],
 
-    'ereg' => [
-        'status' => 'Removed PHP 7',
-        'suggestion' => 'Use preg_match'
-    ],
+        'eregi' => [
+            'rule' => 'PHP.REMOVED.EREGI',
+            'severity' => Severity::ERROR,
+            'message' => 'eregi() was removed in PHP 7.0',
+            'suggestion' => 'Use preg_match with modifiers'
+        ],
 
-    'eregi' => [
-        'status' => 'Removed PHP 7',
-        'suggestion' => 'Use preg_match with modifiers'
-    ],
+        'create_function' => [
+            'rule' => 'PHP.REMOVED.CREATE_FUNCTION',
+            'severity' => Severity::ERROR,
+            'message' => 'create_function() was removed in PHP 8.0',
+            'suggestion' => 'Use anonymous functions'
+        ],
 
-    'create_function' => [
-        'status' => 'Removed PHP 8',
-        'suggestion' => 'Use anonymous functions'
-    ],
+        'each' => [
+            'rule' => 'PHP.REMOVED.EACH',
+            'severity' => Severity::ERROR,
+            'message' => 'each() was removed in PHP 8.0',
+            'suggestion' => 'Use foreach'
+        ],
 
-    'each' => [
-        'status' => 'Removed PHP 8',
-        'suggestion' => 'Use foreach'
-    ],
-
-    'session_register' => [
-        'status' => 'Removed',
-        'suggestion' => 'Use $_SESSION'
-    ]
-];
-
-
-echo "\n";
-echo "=====================================\n";
-echo " PHP Modernizer Scanner v0.2\n";
-echo " PHP 8.2 Compatibility Report\n";
-echo "=====================================\n\n";
+        'session_register' => [
+            'rule' => 'PHP.REMOVED.SESSION_REGISTER',
+            'severity' => Severity::ERROR,
+            'message' => 'session_register() was removed',
+            'suggestion' => 'Use $_SESSION'
+        ],
+    ];
 
 
-$files = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($projectPath)
-);
+    /**
+     * Analyze PHP source lines.
+     *
+     * @param array<int,string> $lines
+     *
+     * @return array<int,Issue>
+     */
+    public function analyze(
+        string $file,
+        array $lines
+    ): array {
+
+        $issues = [];
 
 
-foreach ($files as $file) {
+        foreach ($lines as $lineNumber => $line) {
 
-    if ($file->isDir()) {
-        continue;
-    }
+            foreach ($this->rules as $function => $rule) {
 
-    if (pathinfo($file, PATHINFO_EXTENSION) !== 'php') {
-        continue;
-    }
+                if (
+                    stripos(
+                        $line,
+                        $function . '('
+                    ) !== false
+                ) {
 
+                    $issues[] = new Issue(
 
-    $content = file_get_contents($file);
+                        rule: $rule['rule'],
 
-$lines = explode("\n", $content);
+                        severity: $rule['severity'],
 
-foreach ($rules as $function => $info) {
+                        message: $rule['message'],
 
-    foreach ($lines as $lineNumber => $line) {
+                        file: $file,
 
-        if (stripos($line, $function . '(') !== false) {
+                        line: $lineNumber + 1,
 
-            echo "File: " . $file . "\n";
-            echo "Line: " . ($lineNumber + 1) . "\n";
-            echo "Found: " . $function . "()\n";
-            echo "Status: " . $info['status'] . "\n";
-            echo "Suggestion: " . $info['suggestion'] . "\n";
-            echo "-------------------------------------\n";
+                        column: 1,
+
+                        code: $function,
+
+                        context: [
+                            'suggestion' =>
+                                $rule['suggestion']
+                        ]
+                    );
+                }
+            }
         }
+
+
+        return $issues;
     }
 }
-}
-
-echo "\nScan completed.\n";

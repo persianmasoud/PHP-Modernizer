@@ -3,11 +3,15 @@
 mysql_connect(
     "localhost",
     "root",
-    "1234"
+    "password"
 );
 
-ereg("test",$name);
+mysql_query(
+    "SELECT * FROM users"
+);
 
-each($users);
 
-?>
+create_function(
+    '$name',
+    'return $name;'
+);
